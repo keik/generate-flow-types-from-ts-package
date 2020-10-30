@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "author": "keik <k4t0.kei@gmail.com>",
   "bin": {
-    "generate-flow-types-from-ts-package": "./lib/cli"
+    "generate-flow-types-from-ts-package": "./lib/cli.js"
   },
   "dependencies": {
     "chalk": "4.1.0",
