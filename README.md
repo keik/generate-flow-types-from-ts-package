@@ -16,7 +16,7 @@ TS package
 ```
 % npx generate-flow-types-from-ts-package --help
 
-Usage: npx generate-flow-types-from-ts-package <path_to_package...>
+Usage: npx @keik/generate-flow-types-from-ts-package <path_to_package...>
 
 
 Options:

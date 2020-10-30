@@ -1,5 +1,5 @@
 {
-  "name": "generate-flow-types-from-ts-package",
+  "name": "@keik/generate-flow-types-from-ts-package",
   "version": "0.0.0",
   "author": "keik <k4t0.kei@gmail.com>",
   "bin": {
