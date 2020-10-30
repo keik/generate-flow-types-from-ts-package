@@ -24,6 +24,7 @@ Options:
   -h, --help     Show help                                             [boolean]
       --verbose  Run with verbose logs                                 [boolean]
       --outdir   Path to directory to output flow types      [string] [required]
+      --verify   Verify if auto-generated flow types are synchronized (withoutd]
 ```
 
 ## LICENSE

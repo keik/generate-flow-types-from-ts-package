@@ -24,6 +24,12 @@ Usage: npx generate-flow-types-from-ts-package <path_to_package...>
       description: "Path to directory to output flow types",
       required: true,
     },
+    verify: {
+      boolean: true,
+      description:
+        "Verify if auto-generated flow types are synchronized (without overwriting)",
+      default: false,
+    },
   }).argv;
 
-main(argv._, { outdir: argv.outdir });
+main(argv._, { outdir: argv.outdir, verify: argv.verify });

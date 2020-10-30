@@ -9,6 +9,10 @@ import { compiler } from "flowgen";
 
 const TMP_DIR = "./tmp/generate-flowtype-from-ts";
 
+const handleErrorToExit = (e: Error) => {
+  console.error(chalk.red(e.message));
+  process.exit(1);
+};
 const createDeclsByTsc = async (
   packageName: string,
   entryFilepath: string
@@ -25,7 +29,6 @@ const createDeclsByTsc = async (
       .replace(/\.ts$/, ".d.ts")}`;
 
     proc.on("error", (e) => {
-      console.log("aaaaaaaaaaaaaaaa");
       reject(e);
     });
 
@@ -52,7 +55,11 @@ const bundleDecls = (packageName: string, entryDeclFilepath: string) => {
   return outFilepath;
 };
 
-const createFlowTypes = (bundleDeclFilepath: string, outdir: string) => {
+const createFlowTypes = (
+  bundleDeclFilepath: string,
+  outdir: string,
+  verify: boolean
+) => {
   const outFilepath = `${outdir}/${path
     .basename(bundleDeclFilepath)
     .replace(/\.d\.ts/, ".js.flow")}`;
@@ -62,41 +69,56 @@ const createFlowTypes = (bundleDeclFilepath: string, outdir: string) => {
     )
   );
   const flowdef = compiler.compileDefinitionFile(bundleDeclFilepath);
-  fs.writeFileSync(outFilepath, flowdef);
+  if (verify) {
+    if (
+      true ||
+      !fs.existsSync(outFilepath) ||
+      flowdef !== fs.readFileSync(outFilepath, "utf-8")
+    ) {
+      throw new Error(
+        `Error: auto-generated flow types are not synchronized: ${outFilepath}`
+      );
+    }
+  } else {
+    fs.writeFileSync(outFilepath, flowdef);
+  }
 };
 
-type Options = { outdir: string };
+type Options = { outdir: string; verify: boolean };
 const main = async (packagePaths: Array<string>, options: Options) => {
   const resolve = enhancedResolve.create({ extensions: [".ts", ".tsx"] });
 
-  packagePaths.forEach((packagePath) => {
-    (async () => {
-      let entryFilepath = (await new Promise((res, rej) => {
-        resolve(packagePath, "", (err: any, result: string) => {
-          if (err) {
-            rej(
-              new Error(`Can't resolve entrypoint from package: ${packagePath}`)
-            );
-          }
-          res(result);
-        });
-      })) as string;
+  await Promise.all(
+    packagePaths.map((packagePath) =>
+      (async () => {
+        const entryFilepath = (await new Promise((res, rej) => {
+          resolve(packagePath, "", (err: any, result: string) => {
+            if (err) {
+              rej(
+                new Error(
+                  `Error: Can't resolve entrypoint from package: ${packagePath}`
+                )
+              );
+            }
+            res(result);
+          });
+        })) as string;
 
-      if (path.extname(entryFilepath) !== ".ts")
-        throw Error(`entry filepath must be .ts file: ${entryFilepath}`);
-      if (!fs.existsSync(entryFilepath))
-        throw Error(`entry filepath is not exist: ${entryFilepath}`);
+        if (path.extname(entryFilepath) !== ".ts")
+          throw Error(`entry filepath must be .ts file: ${entryFilepath}`);
+        if (!fs.existsSync(entryFilepath))
+          throw Error(`entry filepath is not exist: ${entryFilepath}`);
 
-      const packageName = path.basename(path.dirname(entryFilepath));
-
-      const entryDelcFilepath = await createDeclsByTsc(
-        packageName,
-        entryFilepath
-      );
-      const bundleDeclFilepath = bundleDecls(packageName, entryDelcFilepath);
-      createFlowTypes(bundleDeclFilepath, options.outdir);
-    })().catch((e) => console.error(e));
-  });
+        const packageName = path.basename(path.dirname(entryFilepath));
+        const entryDelcFilepath = await createDeclsByTsc(
+          packageName,
+          entryFilepath
+        );
+        const bundleDeclFilepath = bundleDecls(packageName, entryDelcFilepath);
+        createFlowTypes(bundleDeclFilepath, options.outdir, options.verify);
+      })().catch(handleErrorToExit)
+    )
+  ).catch(handleErrorToExit);
 };
 
 export default main;
