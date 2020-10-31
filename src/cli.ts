@@ -18,6 +18,7 @@ Usage: npx generate-flow-types-from-ts-package <path_to_package...>
       boolean: true,
       description: "Run with verbose logs",
       required: false,
+      default: false,
     },
     outdir: {
       string: true,
@@ -32,4 +33,8 @@ Usage: npx generate-flow-types-from-ts-package <path_to_package...>
     },
   }).argv;
 
-main(argv._, { outdir: argv.outdir, verify: argv.verify });
+main(argv._, {
+  outdir: argv.outdir,
+  verbose: argv.verbose,
+  verify: argv.verify,
+});
