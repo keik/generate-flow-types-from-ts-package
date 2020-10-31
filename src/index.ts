@@ -80,7 +80,6 @@ const createFlowTypes = (bundleDeclFilepath: string, options: Options) => {
   const flowdef = compiler.compileDefinitionFile(bundleDeclFilepath);
   if (options.verify) {
     if (
-      true ||
       !fs.existsSync(outFilepath) ||
       flowdef !== fs.readFileSync(outFilepath, "utf-8")
     ) {
@@ -94,7 +93,10 @@ const createFlowTypes = (bundleDeclFilepath: string, options: Options) => {
 };
 
 type Options = { outdir: string; verbose: boolean; verify: boolean };
-const main = async (packagePaths: Array<string>, options: Options) => {
+const main = async (
+  packagePaths: Array<string>,
+  options: Options
+): Promise<void> => {
   const resolve = enhancedResolve.create({ extensions: [".ts", ".tsx"] });
 
   await Promise.all(
