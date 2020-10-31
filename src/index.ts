@@ -87,8 +87,9 @@ const createFlowTypes = (bundleDeclFilepath: string, options: Options) => {
         `Auto-generated flow types are not synchronized: ${outFilepath}`
       );
     }
+  } else {
+    fs.writeFileSync(outFilepath, flowdef);
   }
-  fs.writeFileSync(outFilepath, flowdef);
   return outFilepath;
 };
 
@@ -133,12 +134,16 @@ const main = async (
           options
         );
         const hrend = process.hrtime(hrstart);
-        if (!options.verify) {
+        if (options.verify) {
+          console.info(chalk.green("verify: ${generatedFlowFilepath}"));
+        } else {
           console.info(
-            `generated: ${generatedFlowFilepath} (${(
-              hrend[0] * 1000 +
-              hrend[1] / 1000000
-            ).toFixed(0)}ms)`
+            chalk.green(
+              `generated: ${generatedFlowFilepath} (${(
+                hrend[0] * 1000 +
+                hrend[1] / 1000000
+              ).toFixed(0)}ms)`
+            )
           );
         }
       })().catch(handleErrorToExit)
