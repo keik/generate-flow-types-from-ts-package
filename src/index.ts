@@ -83,9 +83,7 @@ const createFlowTypes = (bundleDeclFilepath: string, options: Options) => {
       !fs.existsSync(outFilepath) ||
       flowdef !== fs.readFileSync(outFilepath, "utf-8")
     ) {
-      throw new Error(
-        `Auto-generated flow types are not synchronized: ${outFilepath}`
-      );
+      throw new Error(`verify: 🙅 ${outFilepath} is not synched.`);
     }
   } else {
     fs.writeFileSync(outFilepath, flowdef);
@@ -135,7 +133,9 @@ const main = async (
         );
         const hrend = process.hrtime(hrstart);
         if (options.verify) {
-          console.info(chalk.green("verify: ${generatedFlowFilepath}"));
+          console.info(
+            chalk.green(`verify: 🙆 ${generatedFlowFilepath} is synced`)
+          );
         } else {
           console.info(
             chalk.green(
