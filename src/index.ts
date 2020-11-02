@@ -10,9 +10,10 @@ import { beautify, compiler } from "flowgen";
 const TMP_DIR = "./tmp/generate-flowtype-from-ts";
 
 const handleErrorToExit = (e: Error) => {
-  console.error(chalk.red(`Error: ${e.message}`));
+  console.error(chalk.red(e.stack));
   process.exit(1);
 };
+
 const createDeclsByTsc = async (
   packageName: string,
   entryFilepath: string,
@@ -103,6 +104,7 @@ const createFlowTypes = (
 };
 
 type Options = { outdir: string; verbose: boolean; verify: boolean };
+
 const main = async (
   packagePaths: Array<string>,
   options: Options
