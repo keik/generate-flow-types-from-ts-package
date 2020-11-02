@@ -24,7 +24,7 @@ const createDeclsByTsc = async (
     if (options.verbose) {
       console.info(
         chalk.cyan(
-          `[decl]: Create TypeScript declaration files with: ${command}`
+          `[tsc]: Create TypeScript declaration files with: ${command}`
         )
       );
     }
@@ -52,7 +52,7 @@ const bundleDecls = (
   if (options.verbose) {
     console.info(
       chalk.cyan(
-        `[bundle]: Bundle TypeScript declaration files of ${packageName} to ${entryDeclFilepath}`
+        `[dts-bundle]: Bundle TypeScript declaration files of ${packageName} to ${entryDeclFilepath}`
       )
     );
   }
