@@ -51,19 +51,17 @@ const bundleDecls = (
   entryDeclFilepath: string,
   options: Options
 ) => {
+  const outFilepath = `${TMP_DIR}/${packageName}.d.ts`;
   if (options.verbose) {
     console.info(
       chalk.cyan(
-        `[dts-bundle]: Bundle TypeScript declaration files of ${packageName} to ${entryDeclFilepath}`
+        `[dts-bundle]: Bundle TypeScript declaration files of ${packageName} to ${outFilepath}`
       )
     );
   }
-  const outdir = path.dirname(path.dirname(entryDeclFilepath)); // parent
-  const outFilepath = `${outdir}/${packageName}.d.ts`;
   bundle({
     name: packageName,
     main: entryDeclFilepath,
-    removeSource: true,
     out: `~/${outFilepath}`,
   });
   return outFilepath;
@@ -75,7 +73,7 @@ const createFlowTypes = (
   options: Options
 ) => {
   const outFilepath = `${options.outdir}/${path
-    .basename(bundleDeclFilepath)
+    .relative(TMP_DIR, bundleDeclFilepath)
     .replace(/\.d\.ts/, ".js.flow")}`;
   if (options.verbose) {
     console.info(
