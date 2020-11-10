@@ -6,6 +6,7 @@ import chalk from "chalk";
 import { bundle } from "dts-bundle";
 import enhancedResolve from "enhanced-resolve";
 import { beautify, compiler } from "flowgen";
+// import rimraf from "rimraf";
 
 const pkg = require("../package.json"); // eslint-disable-line @typescript-eslint/no-var-requires
 
@@ -22,7 +23,7 @@ const createDeclsByTsc = async (
   options: Options
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const command = `npx tsc -d --emitDeclarationOnly ${entryFilepath} --outDir ${TMP_DIR}/${packageName}`;
+    const command = `npx tsc --lib es2015,dom --types --jsx react --esModuleInterop -d --emitDeclarationOnly --outDir ${TMP_DIR}/${packageName} ${entryFilepath}`;
     if (options.verbose) {
       console.info(
         chalk.cyan(
@@ -34,13 +35,15 @@ const createDeclsByTsc = async (
     const proc = spawn(command, [], { shell: true });
     const entryDelcFilepath = `${TMP_DIR}/${packageName}/${path
       .basename(entryFilepath)
-      .replace(/\.ts$/, ".d.ts")}`;
+      .replace(/\.tsx?$/, ".d.ts")}`;
 
+    proc.stdout.on("data", (data) => {
+      console.log(data.toString());
+    });
     proc.on("error", (e) => {
       reject(e);
     });
-
-    proc.on("close", () => {
+    proc.on("exit", () => {
       resolve(entryDelcFilepath);
     });
   });
@@ -128,7 +131,7 @@ const main = async (
           });
         })) as string;
 
-        if (path.extname(entryFilepath) !== ".ts")
+        if (!RegExp(".tsx?").test(path.extname(entryFilepath)))
           throw Error(`Entry filepath must be .ts file: ${entryFilepath}`);
         if (!fs.existsSync(entryFilepath))
           throw Error(`Entry filepath is not exist: ${entryFilepath}`);
@@ -166,6 +169,8 @@ const main = async (
       })().catch(handleErrorToExit)
     )
   ).catch(handleErrorToExit);
+  // TODO: optional or use tempfile
+  // rimraf.sync(TMP_DIR);
 };
 
 export default main;
