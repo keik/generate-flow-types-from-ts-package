@@ -77,7 +77,7 @@ const createFlowTypes = (
 ) => {
   const outFilepath = `${options.outdir}/${path
     .relative(TMP_DIR, bundleDeclFilepath)
-    .replace(/\.d\.ts/, ".js.flow")}`;
+    .replace(/\.d\.ts/, ".js")}`;
   if (options.verbose) {
     console.info(
       chalk.cyan(
