@@ -9,7 +9,7 @@
     "chalk": "4.1.0",
     "dts-bundle": "0.7.3",
     "enhanced-resolve": "5.3.1",
-    "flowgen": "1.12.0",
+    "flowgen": "1.12.1",
     "yargs": "16.1.0"
   },
   "devDependencies": {
