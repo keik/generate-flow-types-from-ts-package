@@ -6,7 +6,7 @@ import chalk from "chalk";
 import { bundle } from "dts-bundle";
 import enhancedResolve from "enhanced-resolve";
 import { beautify, compiler } from "flowgen";
-// import rimraf from "rimraf";
+import rimraf from "rimraf";
 
 const pkg = require("../package.json"); // eslint-disable-line @typescript-eslint/no-var-requires
 
@@ -17,13 +17,9 @@ const handleErrorToExit = (e: Error) => {
   process.exit(1);
 };
 
-const createDeclsByTsc = async (
-  packageName: string,
-  entryFilepath: string,
-  options: Options
-): Promise<string> => {
+const createDeclsByTsc = async (options: Options): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const command = `npx tsc --lib es2015,dom --types --jsx react --esModuleInterop -d --emitDeclarationOnly --outDir ${TMP_DIR}/${packageName} ${entryFilepath}`;
+    const command = `npx tsc --noEmit false --declaration --emitDeclarationOnly --removeComments false --outDir ${TMP_DIR} --rootDir ./`;
     if (options.verbose) {
       console.info(
         chalk.cyan(
@@ -33,9 +29,6 @@ const createDeclsByTsc = async (
     }
 
     const proc = spawn(command, [], { shell: true });
-    const entryDelcFilepath = `${TMP_DIR}/${packageName}/${path
-      .basename(entryFilepath)
-      .replace(/\.tsx?$/, ".d.ts")}`;
 
     proc.stdout.on("data", (data) => {
       console.log(data.toString());
@@ -44,7 +37,7 @@ const createDeclsByTsc = async (
       reject(e);
     });
     proc.on("exit", () => {
-      resolve(entryDelcFilepath);
+      resolve("hoge");
     });
   });
 };
@@ -112,12 +105,13 @@ const main = async (
   packagePaths: Array<string>,
   options: Options
 ): Promise<void> => {
+  const hrstart = process.hrtime();
   const resolve = enhancedResolve.create({ extensions: [".ts", ".tsx"] });
+  await createDeclsByTsc(options);
 
   await Promise.all(
     packagePaths.map((packagePath) =>
       (async () => {
-        const hrstart = process.hrtime();
         const packageJson = fs
           .readFileSync(`${packagePath}/package.json`)
           .toString();
@@ -132,18 +126,19 @@ const main = async (
         })) as string;
 
         if (!RegExp(".tsx?").test(path.extname(entryFilepath)))
-          throw Error(`Entry filepath must be .ts file: ${entryFilepath}`);
+          throw Error(
+            `Entry filepath must be .ts or .tsx file: ${entryFilepath}`
+          );
         if (!fs.existsSync(entryFilepath))
           throw Error(`Entry filepath is not exist: ${entryFilepath}`);
 
-        const entryDelcFilepath = await createDeclsByTsc(
-          packageName,
-          entryFilepath,
-          options
-        );
+        const entryDeclFilepath = path
+          .join(TMP_DIR, entryFilepath)
+          .replace(/\.tsx?$/, ".d.ts");
+
         const bundleDeclFilepath = bundleDecls(
           packageName,
-          entryDelcFilepath,
+          entryDeclFilepath,
           options
         );
         const generatedFlowFilepath = createFlowTypes(
@@ -169,8 +164,7 @@ const main = async (
       })().catch(handleErrorToExit)
     )
   ).catch(handleErrorToExit);
-  // TODO: optional or use tempfile
-  // rimraf.sync(TMP_DIR);
+  rimraf.sync(TMP_DIR);
 };
 
 export default main;
