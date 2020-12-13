@@ -10,6 +10,7 @@
     "dts-bundle": "0.7.3",
     "enhanced-resolve": "5.3.1",
     "flowgen": "1.12.1",
+    "rimraf": "3.0.2",
     "yargs": "16.1.0"
   },
   "devDependencies": {
@@ -22,7 +23,6 @@
     "eslint": "7.12.1",
     "eslint-config-prettier": "6.15.0",
     "eslint-plugin-prettier": "3.1.4",
-    "rimraf": "3.0.2",
     "typescript": "4.0.5"
   },
   "files": [
